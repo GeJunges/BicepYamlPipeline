@@ -1,0 +1,64 @@
+parameters:
+  - name: infrastructureAction
+    displayName: Infrastructure Action
+    type: string
+    default: Create
+    values:
+      - Create
+      - Destroy
+
+trigger:
+  - main
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: GenerateInfraArtifacts
+    jobs:
+      - job: GenerateInfraArtifacts
+        steps:
+          - task: CopyFiles@2
+            displayName: "Include templates in the artifact"
+            inputs:
+              SourceFolder: "bicep"
+              Contents: |
+                main.bicep
+                main.bicepparam
+              TargetFolder: "$(Build.ArtifactStagingDirectory)"
+
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Infrastructure artifact"
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              ArtifactName: "drop"
+              publishLocation: "Container"
+
+  - stage: DeployInfrastructure
+    jobs:
+      - job: DeployInfrastructure
+        steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Infrastructure Artifact"
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "drop"
+              downloadPath: "$(System.ArtifactsDirectory)"
+          - task: AzureCLI@2
+            displayName: "Deploy Bicep file"
+            inputs:
+              azureSubscription: ""
+              scriptType: "bash"
+              scriptLocation: "inline"
+              inlineScript: |
+                # Creating a resource group
+                az group create \
+                  --name $(resourceGroupName) \
+                  --location $(resourceGroupLocation)
+                # Deploying Bicep file
+                az deployment group create \
+                  --name $(Build.BuildNumber) \
+                  --resource-group $(resourceGroupName) \
+                  --template-file $(System.ArtifactsDirectory)/drop/main.bicep \
+                  --parameters @$(System.ArtifactsDirectory)/drop/main.bicepparam
