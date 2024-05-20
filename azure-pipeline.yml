@@ -48,9 +48,9 @@ stages:
           - task: AzureCLI@2
             displayName: "Deploy Bicep file"
             inputs:
-              azureSubscription: ""
+              azureSubscription: "Azure subscription 1"
               scriptType: "bash"
-              scriptLocation: "inline"
+              scriptLocation: "inlineScript"
               inlineScript: |
                 # Creating a resource group
                 az group create \
