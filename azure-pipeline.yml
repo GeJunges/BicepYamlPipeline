@@ -13,9 +13,6 @@ trigger:
 pool:
   vmImage: "ubuntu-latest"
 
-variables:
-  - template: variables/development.yaml
-
 stages:
   - stage: GenerateInfraArtifacts
     jobs:
