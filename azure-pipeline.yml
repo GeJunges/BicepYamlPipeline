@@ -55,7 +55,7 @@ stages:
                 # Creating a resource group
                 az group create \
                   --name compilation-rg \
-                  --location $(resourceGroupLocation)
+                  --location westeurope
                 # Deploying Bicep file
                 az deployment group create \
                   --name $(Build.BuildNumber) \
