@@ -13,6 +13,9 @@ trigger:
 pool:
   vmImage: "ubuntu-latest"
 
+variables:
+  - template: variables/development.yaml
+
 stages:
   - stage: GenerateInfraArtifacts
     jobs:
@@ -54,11 +57,11 @@ stages:
               inlineScript: |
                 # Creating a resource group
                 az group create \
-                  --name $(resourceGroupName) \
+                  --name compilation-rg \
                   --location $(resourceGroupLocation)
                 # Deploying Bicep file
                 az deployment group create \
                   --name $(Build.BuildNumber) \
-                  --resource-group $(resourceGroupName) \
+                  --resource-group compilation-rg \
                   --template-file $(System.ArtifactsDirectory)/drop/main.bicep \
                   --parameters @$(System.ArtifactsDirectory)/drop/main.bicepparam
