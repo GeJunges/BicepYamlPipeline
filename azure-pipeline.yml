@@ -48,7 +48,7 @@ stages:
           - task: AzureCLI@2
             displayName: "Deploy Bicep file"
             inputs:
-              azureSubscription: "CompilationBvSubscription"
+              azureSubscription: "compilation-service-connection"
               scriptType: "bash"
               scriptLocation: "inlineScript"
               inlineScript: |
